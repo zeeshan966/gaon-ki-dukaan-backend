@@ -18,7 +18,6 @@ exports.login = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        // Frontend ke liye 'id' bhej rahe hain
         res.json({
             token,
             user: { id: user._id, name: user.name, role: user.role }
@@ -28,9 +27,46 @@ exports.login = async (req, res) => {
     }
 };
 
-// Register remains the same as your previous code
+// Register - Handles both Single and Multiple users
 exports.register = async (req, res) => {
     try {
+        // CASE 1: Agar Postman se Multiple Users (Array) aa rahe hain
+        if (Array.isArray(req.body)) {
+            const usersArray = req.body;
+            const validUsers = [];
+
+            // Loop chala kar check karenge aur password hash karenge
+            for (let userData of usersArray) {
+                const { name, email, password, role } = userData;
+
+                // Check agar koi user pehle se exist karta hai
+                const existingUser = await User.findOne({ email });
+                if (!existingUser) {
+                    const salt = await bcrypt.genSalt(10);
+                    const hashedPassword = await bcrypt.hash(password, salt);
+                    
+                    validUsers.push({
+                        name,
+                        email,
+                        password: hashedPassword,
+                        role: role || 'shopkeeper' // default role agar nahi diya toh
+                    });
+                }
+            }
+
+            if (validUsers.length === 0) {
+                return res.status(400).json({ message: "All users in the list already exist" });
+            }
+
+            // Ek baar mein saare valid users ko insert karenge
+            const createdUsers = await User.insertMany(validUsers);
+            return res.status(201).json({ 
+                message: "Bulk registration successful!", 
+                count: createdUsers.length 
+            });
+        }
+
+        // CASE 2: Agar Single User (Object) aa raha hai (Aapka purana logic optimized)
         const { name, email, password, role } = req.body;
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ message: "User already exists" });
@@ -40,8 +76,10 @@ exports.register = async (req, res) => {
 
         user = new User({ name, email, password: hashedPassword, role });
         await user.save();
+        
         res.status(201).json({ message: "User registered successfully" });
+
     } catch (err) {
-        res.status(500).json({ message: "Server Error" });
+        res.status(500).json({ message: "Server Error", error: err.message });
     }
 };
