@@ -1,8 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const path = require('path'); // ✅ Required for path navigation
-const mongoose = require('mongoose'); // ✅ Added for cleanup script connection reference
+const path = require('path'); // Required for file and directory paths.
+const mongoose = require('mongoose'); // Used by the database cleanup script.
 const connectDB = require('./config/db');
 
 // Routes Import
@@ -33,8 +33,8 @@ app.get('/', (req, res) => {
   res.send('Gaon Shop Status API is running...');
 });
 
-// ⚠️ 🔥 ONCE-TIME MASTER CLEANUP SCRIPT FOR IMAGES
-// Yeh database se 'http://localhost:5000' ko ek baar mein uda degi
+// One-time image URL cleanup script.
+// Removes the local server address from stored shop image URLs.
 mongoose.connection.once('open', async () => {
   try {
     console.log("🛠️ Starting Database Image URL Cleanup...");

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// 1. Token check karne ke liye (Authentication)
+// 1. Authentication: verify the access token.
 const protect = async (req, res, next) => {
     let token;
 
@@ -27,7 +27,7 @@ const protect = async (req, res, next) => {
     }
 };
 
-// 2. Role check karne ke liye (Authorization)
+// 2. Authorization: verify the user role.
 const authorize = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {

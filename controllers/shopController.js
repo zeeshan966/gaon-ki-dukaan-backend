@@ -91,7 +91,7 @@ exports.updateShop = async (req, res) => {
     try {
         const { shopName, category, address, contact, isOpen, discountText, offerDescription, isOfferActive } = req.body;
         let shop = await Shop.findById(req.params.id);
-        if (!shop) return res.status(404).json({ message: "Dukan nahi mili!" });
+        if (!shop) return res.status(404).json({ message: "Shop not found!" });
 
         const isOwner = shop.owner.toString() === req.user.id;
         const isAdmin = req.user.role === 'admin';
@@ -126,7 +126,7 @@ exports.updateShop = async (req, res) => {
 exports.getShopById = async (req, res) => {
     try {
         const shop = await Shop.findById(req.params.id).populate('owner', 'name');
-        if (!shop) return res.status(404).json({ message: "Dukan nahi mili!" });
+        if (!shop) return res.status(404).json({ message: "Shop not found!" });
         res.json(shop);
     } catch (err) {
         res.status(500).json({ message: "Server Error" });
@@ -139,7 +139,7 @@ exports.getShopById = async (req, res) => {
 // 8. Add Item (Updated to capture dynamic measurement unit)
 exports.addItemToInventory = async (req, res) => {
     try {
-        // --- 📏 UNIT ADDEED TO REQ.BODY DESTRUCTURING ---
+        // Read the measurement unit from the request body.
         const { itemName, price, category, isAvailable, unit } = req.body; 
         const shop = await Shop.findById(req.params.id);
 
@@ -154,7 +154,7 @@ exports.addItemToInventory = async (req, res) => {
             price, 
             category: category || "General",
             isAvailable: isAvailable !== undefined ? isAvailable : true,
-            unit: unit || "piece" // Frontend se aayi unit yahan map ho jayegi
+            unit: unit || "piece" // Use the unit submitted by the frontend.
         };
 
         shop.inventory.push(newItem);
@@ -207,7 +207,7 @@ exports.updateItemInInventory = async (req, res) => {
         if (price !== undefined) item.price = price;
         if (category !== undefined) item.category = category;
         if (isAvailable !== undefined) item.isAvailable = isAvailable;
-        if (unit !== undefined) item.unit = unit; // Item update ke time unit switch update sync ho jayegi
+        if (unit !== undefined) item.unit = unit; // Synchronize the updated measurement unit.
 
         await shop.save();
         res.json(item);

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // --- 🌾 Updated Inventory Item Schema ---
-// Isse har item ko price aur accurate measurement unit milegi
+// Each inventory item includes a price and an accurate measurement unit.
 const itemSchema = new mongoose.Schema({
     itemName: {
         type: String,
@@ -10,27 +10,27 @@ const itemSchema = new mongoose.Schema({
     },
     isAvailable: {
         type: Boolean,
-        default: true, // Naya item by default available rahega
+        default: true, // New items are available by default.
     },
     category: {
         type: String, // e.g., 'Dairy', 'Snacks', 'Ration'
         default: 'General'
     },
     // --- 💰 PRICE UPDATED TO NUMBER ---
-    // Mathematically calculation aur multiplication easy karne ke liye
+    // Store price as a number for calculations and arithmetic.
     price: {
         type: Number,
         required: true,
         default: 0
     },
     // --- 📏 NEW MEASUREMENT UNIT FIELD ---
-    // Shopkeeper ki dukan ki category ke hisab se frontend automatic isme value bhejega (e.g., kg, piece, packet, strip)
+    // The frontend sends the appropriate unit based on the shop category (for example: kg, piece, packet, or strip).
     unit: {
         type: String,
         required: true,
         default: 'piece',
         trim: true,
-        lowercase: true // Taaki 'KG', 'Kg' ya 'kg' ka panga na ho, hamesha lowercase save ho
+        lowercase: true // Normalize values such as KG or Kg to lowercase.
     }
 });
 
@@ -42,7 +42,7 @@ const shopSchema = new mongoose.Schema({
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Shopkeeper ki User ID
+        ref: 'User', // The shopkeeper's user ID.
         required: true,
     },
     category: {
@@ -82,8 +82,8 @@ const shopSchema = new mongoose.Schema({
         }
     },
 
-    // --- Naya Inventory Field ---
-    inventory: [itemSchema] // Dynamic Items ki list yahan store hogi
+    // --- Inventory Field ---
+    inventory: [itemSchema] // Stores the dynamic list of shop items.
 }, { timestamps: true });
 
 module.exports = mongoose.model('Shop', shopSchema);

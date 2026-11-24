@@ -30,16 +30,16 @@ exports.login = async (req, res) => {
 // Register - Handles both Single and Multiple users
 exports.register = async (req, res) => {
     try {
-        // CASE 1: Agar Postman se Multiple Users (Array) aa rahe hain
+        // CASE 1: Handle multiple users submitted as an array.
         if (Array.isArray(req.body)) {
             const usersArray = req.body;
             const validUsers = [];
 
-            // Loop chala kar check karenge aur password hash karenge
+            // Validate each user and hash the password.
             for (let userData of usersArray) {
                 const { name, email, password, role } = userData;
 
-                // Check agar koi user pehle se exist karta hai
+                // Check whether the user already exists.
                 const existingUser = await User.findOne({ email });
                 if (!existingUser) {
                     const salt = await bcrypt.genSalt(10);
@@ -49,7 +49,7 @@ exports.register = async (req, res) => {
                         name,
                         email,
                         password: hashedPassword,
-                        role: role || 'shopkeeper' // default role agar nahi diya toh
+                        role: role || 'shopkeeper' // Use shopkeeper as the default role.
                     });
                 }
             }
@@ -58,7 +58,7 @@ exports.register = async (req, res) => {
                 return res.status(400).json({ message: "All users in the list already exist" });
             }
 
-            // Ek baar mein saare valid users ko insert karenge
+            // Insert all validated users in a single operation.
             const createdUsers = await User.insertMany(validUsers);
             return res.status(201).json({ 
                 message: "Bulk registration successful!", 
@@ -66,7 +66,7 @@ exports.register = async (req, res) => {
             });
         }
 
-        // CASE 2: Agar Single User (Object) aa raha hai (Aapka purana logic optimized)
+        // CASE 2: Handle a single user object.
         const { name, email, password, role } = req.body;
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ message: "User already exists" });

@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true, // Ek email se ek hi account
+        unique: true, // One account is allowed per email address.
     },
     password: {
         type: String,
@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['admin', 'shopkeeper', 'user'], 
-        default: 'user', // By default har koi normal user hoga
+        default: 'user', // Default every new account to a regular user.
     },
     createdAt: {
         type: Date,

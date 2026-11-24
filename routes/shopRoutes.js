@@ -22,7 +22,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 // ================= 📸 MULTER STORAGE CONFIGURATION =================
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // Physical path jahan images save hongi
+        cb(null, 'uploads/'); // Directory where uploaded images are stored.
     },
     filename: function (req, file, cb) {
         // Unique filename generation using timestamp + random number
@@ -48,39 +48,39 @@ const upload = multer({
 
 // ================= SHOP ROUTES =================
 
-// 1. HOME PAGE: Sabke liye saari dukanein dikhao (Cards View)
+// 1. HOME PAGE: Return all shops for the card view.
 router.get('/', getShops);
 
-// 2. ADMIN PAGE: Nayi dukan register karne ke liye (Sirf Admin)
+// 2. ADMIN PAGE: Register a new shop. Admin access is required.
 router.post('/', protect, authorize('admin'), upload.single('shopImage'), createShop);
 
-// 3. DASHBOARD: Logged-in shopkeeper ki dukan fetch karne ke liye (Shopkeeper & Admin Allowed)
+// 3. DASHBOARD: Fetch the logged-in shopkeeper's shop. Shopkeeper and admin access are allowed.
 router.get('/owner/:ownerId', protect, getShopByOwner);
 
-// 4. STATUS TOGGLE: Shopkeeper apni dukan Open/Close karega
+// 4. STATUS TOGGLE: Allow a shopkeeper to open or close the shop.
 router.put('/:id/status', protect, updateStatus);
 
-// 5. DELETE SHOP: Sirf Admin hi poori dukan uda sakega 🔥
+// 5. DELETE SHOP: Only an admin can delete a shop.
 router.delete('/:id', protect, authorize('admin'), deleteShop);
 
-// 6. EDIT SHOP & OFFERS: 🛠️ FIXED GAME! 'authorize('admin')' hata diya hai 
-// Taaki Shopkeeper bhi apni dukan edit kar sake aur Offers live/update kar sake.
-// Security controller ke andar (isOwner || isAdmin) handle ho rahi hai!
+// 6. EDIT SHOP AND OFFERS:
+// Shopkeepers can edit their own shop and update offers.
+// Ownership and admin authorization are enforced inside the controller.
 router.put('/:id', protect, upload.single('shopImage'), updateShop);
 
-// 7. SINGLE SHOP: Dukan ki details aur inventory dekhne ke liye (Sabke liye)
+// 7. SINGLE SHOP: Return shop details and inventory for every visitor.
 router.get('/:id', getShopById);
 
 
 // ================= INVENTORY ROUTES (CRUD) =================
 
-// 8. ADD ITEM: Dukan mein naya item jodne ke liye
+// 8. ADD ITEM: Add a new item to the shop inventory.
 router.post('/:id/items', protect, addItemToInventory);
 
-// 9. DELETE ITEM: Inventory se item hatane ke liye
+// 9. DELETE ITEM: Remove an item from inventory.
 router.delete('/:id/items/:itemId', protect, deleteItemFromInventory);
 
-// 10. UPDATE ITEM: Inventory item ko edit ya stock status badalne ke liye
+// 10. UPDATE ITEM: Edit an inventory item or update its stock status.
 router.put('/:id/items/:itemId', protect, updateItemInInventory);
 
 module.exports = router;
